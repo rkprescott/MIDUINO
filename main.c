@@ -2,7 +2,7 @@
  *  ESE350 MIDI Keyboard project made by some pretty cool folks,
  *	Richard Prescott & Alex GE
  *
- *  Version works with partial arrays
+ *  Version all arrays working
  */
 #define F_CPU 16000000UL
 #define BAUD_RATE 31250
@@ -32,28 +32,11 @@ char String[25];
 #define column_port PORTB
 #define row_pin PIND
 
-volatile int note1 = 0;
-volatile int note2 = 0;
-volatile int note3 = 0;
-volatile int note4 = 0;
-volatile int note5 = 0;
-volatile int note6 = 0;
-volatile int note7 = 0;
-volatile int note8 = 0;
-
-volatile int send1 = 1;
-volatile int send2 = 1;
-volatile int send3 = 1;
-volatile int send4 = 1;
-volatile int send5 = 1;
-volatile int send6 = 1;
-volatile int send7 = 1;
-volatile int send8 = 1;
-
 volatile int col[2] = {PORTB2, PORTB3};
 volatile int row[4] = {PIND4, PIND5, PIND6, PIND7};
 volatile int note[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 volatile int send[8] = {1, 1, 1, 1, 1, 1, 1, 1};
+volatile int notes[8] = {60, 62, 64, 65, 67, 69, 71, 72};
 
 void UART_init(int prescaler) {
 	
@@ -105,65 +88,6 @@ void ReadMatrix() {
 		}
 		clear(column_port, col[i]);
 	}
-	////column 1 on
-	//PORTB |= (1<<PORTB2);
-	//_delay_us(2);
-	////row3
-	//if (PIND & (1<<PIND4)) {
-		//note3 = 1;
-	//} else {
-		//note3 = 0;
-	//}
-	////row4
-	//if (PIND & (1<<PIND5)) {
-		//note4 = 1;
-	//} else {
-		//note4 = 0;
-	//}
-	////row1
-	//if (PIND & (1<<PIND6)) {
-		//note1 = 1;
-	//} else {
-		//note1 = 0;
-	//}
-	////row2
-	//if (PIND & (1<<PIND7)) {
-		//note2 = 1;
-		//} else {
-		//note2 = 0;
-	//}
-	////column 1 off
-	//PORTB &= ~(1<<PORTB2);
-	//
-	////column 2 on
-	//PORTB |= (1<<PORTB3);
-	//_delay_us(2);
-	////row3
-	//if (PIND & (1<<PIND4)) {
-		//note7 = 1;
-		//} else {
-		//note7 = 0;
-	//}
-	////row4
-	//if (PIND & (1<<PIND5)) {
-		//note8 = 1;
-		//} else {
-		//note8 = 0;
-	//}
-	////row1
-	//if (PIND & (1<<PIND6)) {
-		//note5 = 1;
-		//} else {
-		//note5 = 0;
-	//}
-	////row2
-	//if (PIND & (1<<PIND7)) {
-		//note6 = 1;
-		//} else {
-		//note6 = 0;
-	//}
-	////column 2 off
-	//PORTB &= ~(1<<PORTB3);
 }
 
 int main(void) {
@@ -172,110 +96,21 @@ int main(void) {
 	UART_init(BAUD_PRESCALER);
 	while (1) {
 		ReadMatrix();
-		
-		if (note[0]) {
-			if (send1) {
-				UART_send(chan_on);
-				UART_send(60);
-				UART_send(Vel);
-				send1 = 0;
+		int i;
+		for (i = 0; i < 8; i++) {
+			if (note[i]) {
+				if (send[i]) {
+					UART_send(chan_on);
+					UART_send(notes[i]);
+					UART_send(Vel);
+					send[i] = 0;
+				}
+			} else {
+				UART_send(chan_off);
+				UART_send(notes[i]);
+				UART_send(0);
+				send[i] = 1;
 			}
-		} else {
-			UART_send(chan_off);
-			UART_send(60);
-			UART_send(0);
-			send1 = 1;
-		}
-		if (note[1]) {
-			if (send2) {
-			UART_send(chan_on);
-			UART_send(62);
-			UART_send(Vel);
-			send2 = 0;
-			}	
-		} else {
-			UART_send(chan_off);
-			UART_send(62);
-			UART_send(0);
-			send2 = 1;
-		}
-		if (note[2]) {
-			if (send3) {
-				UART_send(chan_on);
-				UART_send(64);
-				UART_send(Vel);
-				send3 = 0;
-			}
-		} else {
-			UART_send(chan_off);
-			UART_send(64);
-			UART_send(0);
-			send3 = 1;
-		}
-		if (note[3]) {
-			if (send4) {
-				UART_send(chan_on);
-				UART_send(65);
-				UART_send(Vel);
-				send4 = 0;
-			}
-		} else {
-			UART_send(chan_off);
-			UART_send(65);
-			UART_send(0);
-			send4 = 1;
-		}
-		if (note[4]) {
-			if (send5) {
-				UART_send(chan_on);
-				UART_send(67);
-				UART_send(Vel);
-				send5 = 0;
-			}
-		} else {
-			UART_send(chan_off);
-			UART_send(67);
-			UART_send(0);
-			send5 = 1;
-		}
-		if (note[5]) {
-			if (send6) {
-				UART_send(chan_on);
-				UART_send(69);
-				UART_send(Vel);
-				send6 = 0;
-			}
-		} else {
-			UART_send(chan_off);
-			UART_send(69);
-			UART_send(0);
-			send6 = 1;
-		}
-		if (note[6]) {
-			if (send7) {
-				UART_send(chan_on);
-				UART_send(71);
-				UART_send(Vel);
-				send7 = 0;
-			}
-		} else {
-			UART_send(chan_off);
-			UART_send(71);
-			UART_send(0);
-			send7 = 1;
-		}
-		if (note[7]) {
-			if (send8) {
-				UART_send(chan_on);
-				UART_send(72);
-				UART_send(Vel);
-				send8 = 0;
-			}
-		} else {
-			UART_send(chan_off);
-			UART_send(72);
-			UART_send(0);
-			send8 = 1;
 		}
 	}
 }
