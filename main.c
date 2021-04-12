@@ -1,6 +1,8 @@
 /*
  *  ESE350 MIDI Keyboard project made by some pretty cool folks,
  *	Richard Prescott & Alex GE
+ *
+ *  Version without arrays, need to change pins
  */
 #define F_CPU 16000000UL
 #define BAUD_RATE 31250
